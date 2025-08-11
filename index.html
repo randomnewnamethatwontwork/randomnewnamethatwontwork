@@ -7,11 +7,16 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Optional: Material-inspired focus and transition */
     input:focus {
       outline: none;
       border-color: #3b82f6;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Honeypot field is hidden from view */
+    .hidden-field {
+      position: absolute;
+      left: -9999px;
     }
   </style>
 </head>
@@ -19,7 +24,10 @@
   <div class="bg-white shadow-xl rounded-xl w-full max-w-md p-8 space-y-6">
     <h2 class="text-2xl font-semibold text-gray-800 text-center">Submit Your Info</h2>
 
-    <form id="myForm" class="space-y-5">
+    <form id="myForm" class="space-y-5" novalidate>
+      <!-- Honeypot field (traps bots) -->
+      <input type="text" name="phone" id="phone" class="hidden-field" autocomplete="off" tabindex="-1">
+
       <div>
         <label class="block mb-1 text-gray-600 font-medium" for="name">Name</label>
         <input type="text" id="name" name="name" required
@@ -42,27 +50,40 @@
   </div>
 
   <script>
-    const SECRET_KEY = 'my-super-secret-key-123'; // Optional, not currently used
+    const form = document.getElementById("myForm");
+    const status = document.getElementById("status");
 
-    document.getElementById("myForm").addEventListener("submit", function (e) {
+    // Time when form is loaded
+    const formLoadTime = Date.now();
+
+    form.addEventListener("submit", function (e) {
       e.preventDefault();
+
+      const timeTaken = (Date.now() - formLoadTime) / 1000;
+      const honeypotValue = this.phone.value;
+
+      // If submitted too quickly or honeypot filled, silently ignore
+      if (timeTaken < 1 || honeypotValue) {
+        console.warn("Bot detected or form submitted too quickly.");
+        return;
+      }
 
       const formData = {
         name: this.name.value,
         email: this.email.value,
-        secret: '-g=i2{DS=zEOxm,Olt}BO+v}oBzFyz' // ✅ Add secret to payload
+        secret: '-g=i2{DS=zEOxm,Olt}BO+v}oBzFyz'
       };
 
       fetch("https://script.google.com/macros/s/AKfycbwZ3KzsDoP1G_VmliCO2MASO59zon5BrKFSo3TzUs-qn7eKiODdK4InpLgH6ujb-okG/exec", {
         method: "POST",
-        mode: "no-cors", // prevents browser CORS errors
+        mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
-      document.getElementById("status").innerText = "Submitted!";
+      status.innerText = "Submitted!";
       this.reset();
     });
   </script>
