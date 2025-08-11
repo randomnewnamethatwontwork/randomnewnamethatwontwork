@@ -15,12 +15,15 @@
   <p id="status"></p>
 
   <script>
+    const SECRET_KEY = 'my-super-secret-key-123'; // 🔐 Replace with your secret
+
     document.getElementById("myForm").addEventListener("submit", function (e) {
       e.preventDefault();
 
       const formData = {
         name: this.name.value,
         email: this.email.value,
+        secret: '-g=i2{DS=zEOxm,Olt}BO+v}oBzFyz' // ✅ Add secret to payload
       };
 
       fetch("https://script.google.com/macros/s/AKfycbwZ3KzsDoP1G_VmliCO2MASO59zon5BrKFSo3TzUs-qn7eKiODdK4InpLgH6ujb-okG/exec", {
